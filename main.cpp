@@ -35,7 +35,11 @@ using namespace std;
 Rect2i rectangle_value;
 
 
-
+/*
+参考リンク
+https://www.qoosky.dev/techs/e064b34c9c
+https://af-e.net/c-language-fgets-line-by-line/
+*/
 
 //コールバック関数
 void mouse_callback(int event, int x, int y, int flags, void* userdata)
@@ -61,7 +65,7 @@ void mouse_callback(int event, int x, int y, int flags, void* userdata)
 	}
 }
 
-
+//左クリックした際のピクセル位置情報取得
 void mouse_callback_getPixcelVal(int event, int x, int y, int flags, void* userdata)
 {
 	//bool* isClick = static_cast<bool*>(userdata);
@@ -76,7 +80,7 @@ void mouse_callback_getPixcelVal(int event, int x, int y, int flags, void* userd
 }
 
 
-//画像を読込み、表示させる
+//TEMP
 void ImgShowBK(string inputImgPath, string outputImgPath) {
 
 	Mat src;
@@ -89,7 +93,7 @@ void ImgShowBK(string inputImgPath, string outputImgPath) {
 	src = imread(inputImgPath);
 	imshow(src_window, src);
 }
-
+//TEMP
 void sample(string inputImgPath, string outputImgPath) {
 	Mat3b draw_img = imread(inputImgPath);
 	for (int imgRow = 0; draw_img.rows; imgRow++) {
@@ -102,26 +106,26 @@ void sample(string inputImgPath, string outputImgPath) {
 }
 
 //画像上のマウスクリックしたHSV色空間の値をCMDに出力する。
-int B = 0, G = 0, R = 0;
 void ImgShow(string inputImgPath, string outputImgPath) {
 	bool isClick = false;
 	int key = 0;
-	Mat src;
+	int H, S, V;
+	Mat src,srcRGB;
 	Mat3b draw_img = src;
 
 	//ウィンドウネーム
 	string src_window = "ImgIn";
 	string roi_window = "ImgOut";
 
-	//src = imread("C:\makeSoftWare\ImgFld\sampleInput1.PNG");
 	src = imread(inputImgPath);
+	srcRGB = src.clone();
 	cv::cvtColor(src, src, cv::COLOR_BGR2HSV);//色空間変更
 	draw_img = src;
 
 	namedWindow(src_window,1);
 	//setMouseCallback(src_window, mouse_callback, &isClick);
 	setMouseCallback(src_window, mouse_callback_getPixcelVal, NULL);
-	imshow(src_window, src);
+	imshow(src_window, srcRGB);
 
 	bool mouseOnFlg = false;
 	int pointX = 0, pointY = 0;
@@ -130,11 +134,11 @@ void ImgShow(string inputImgPath, string outputImgPath) {
 
 		// 左ボタンが押されたら描画開始
 		if (isClick == true) {
-			rectangle(draw_img, rectangle_value, Scalar(255, 0, 0), 1, CV_AA);
+			rectangle(srcRGB, rectangle_value, Scalar(255, 0, 0), 1, CV_AA);
 			mouseOnFlg = true;
 		}
 
-		imshow(src_window, draw_img);
+		imshow(src_window, srcRGB);
 		draw_img = src;
 
 		int pointX = rectangle_value.width;
@@ -143,61 +147,54 @@ void ImgShow(string inputImgPath, string outputImgPath) {
 
 		// 値の取得
 		// (0,0)が赤だった場合、BGRの順に"0,0,255"と出力される。
-		cv::Vec3b bgr = draw_img(cv::Point(pointX, pointY));
-		printf("%d,%d,%d\n", bgr[0], bgr[1], bgr[2]);
-		B = bgr[0];
-		G = bgr[1];
-		R = bgr[2];
+		cv::Vec3b hsv = draw_img(cv::Point(pointX, pointY));
+		printf("%d,%d,%d\n", hsv[0], hsv[1], hsv[2]);
+		H = hsv[0];
+		S = hsv[1];
+		V = hsv[2];
 
-		// qキーが押されたら終了
+		// c押下でHSV登録、X押下で終了。
 		key = waitKey(1);
-		if (key == 'q')
+		if (key == 'c') {
+			FILE* fp = NULL;
+			fopen_s(&fp, "pxInfo.txt", "a");
+			fprintf(fp, "%d,%d,%d\n", H, S, V);
+			fclose(fp);
+		}
+		if (key == 'x') {
 			break;
+		}		
 	}
-
-
-Mat draw_imgR, draw_imgG, draw_imgB;
-cvtColor(draw_img, draw_imgR, COLOR_BGR2GRAY);
-
-//二値化
-threshold(draw_imgR, draw_imgR, 50, 100, cv::THRESH_BINARY);
-imshow("src_windowR", draw_imgR);
-waitKey(0);
-
-
 }
 
 //画像から特定の色領域マスク作成、マスク部分をHSV色空間変更
-//https://www.qoosky.dev/techs/e064b34c9c
-void iroKukanCnv(string inputImgPath, string outputImgPath) {
-	// BGR 色空間
-	cv::Mat src = cv::imread(inputImgPath, cv::IMREAD_COLOR);
 
-	// HSV 色空間での表現に変換
+cv::Mat iroKukanCnv(string inputImgPath, string outputImgPath,int H,int S,int V,int hiLowRng, cv::Mat src) {
+	
+	//cv::Mat src = cv::imread(inputImgPath, cv::IMREAD_COLOR);
 	cv::Mat hsv;
-	cv::cvtColor(src, hsv, cv::COLOR_BGR2HSV);
+	cv::cvtColor(src, hsv, cv::COLOR_BGR2HSV);// 色空間変更
 
 	// inRange によって Hue が特定の範囲にある領域の mask を取得します。
 	cv::Mat mask;
 	//163,39,251
 	//178,213,180 (赤）
 	//139,185,207 (むらさき色)
-	int H, S, V, highAndLow;
 	//H = 178, S = 213, V = 180;
-	H = 139, S = 185, V = 207;
-	highAndLow = 10;
-	cv::inRange(hsv, cv::Scalar(H - highAndLow, S - highAndLow, V - highAndLow),
-		cv::Scalar(H + highAndLow, S + highAndLow, V + highAndLow), mask);
+	//H = 139, S = 185, V = 207;
+	hiLowRng = 10;
+	cv::inRange(hsv, cv::Scalar(H - hiLowRng, S - hiLowRng, V - hiLowRng),
+		cv::Scalar(H + hiLowRng, S + hiLowRng, V + hiLowRng), mask);
 
-	// src と src の and 演算を、mask の領域 (0 以外の領域) についてのみ行うことで、画像を切り出します。
+	// src と src の and 演算を、mask の領域 (0 以外の領域) についてのみ行い画像を切り出し。
 	double min, max;
 	cv::minMaxLoc(mask, &min, &max);
 
 	cv::Mat dst;
 	cv::bitwise_and(src, src, dst, mask);
 
-	cv::imshow("src", src);
-	cv::imshow("mask", mask);
+	//cv::imshow("src", src);
+	//cv::imshow("mask", mask);
 	//cv::imshow("res", dst);
 
 	//dstの色情報変換
@@ -214,16 +211,31 @@ void iroKukanCnv(string inputImgPath, string outputImgPath) {
 			}
 		}
 	}
-	cv::imshow("dst", src);
+	//cv::imshow("dst", src);
 
-	cv::waitKey(0);
+	//cv::waitKey(0);
+	return src;
 }
 
+int txtGyoCnt() {
+	FILE* fp;
+	int data[100];
+	int c,i = 0;
+	int line = 0;
+	if ((fp = fopen("pxInfo.txt", "r")) == NULL) {
+		return -1;
+	}
+	while ((c = fgetc(fp)) != EOF) {
+		if (c == '\n') line++;
+	}
+	fclose(fp);
+	return line;
+}
 
 int main() {
 
 	//画像格納先
-	//string Strarg = "C:\\makeSoftWare\\ImgFld\\";
+	//string Strarg = "XXXX";
 
 	//画像名
 	//string inputImg = "red.PNG";
@@ -238,12 +250,37 @@ int main() {
 
 	//inputImgPath.append(Strarg);
 	inputImgPath.append(inputImg);
+	int num = 0;
 
+	printf("モード入力　1：画像上のクリックした所のピクセル値をpxInfo.txtに出力　2：pxInfo.txtの情報をもとにピクセル値を変換\n");
+	scanf("%d", &num);
+	
+	if (num == 1) {
+		//画像上のクリックした所のピクセル値をTXTに出力。
+		ImgShow(inputImgPath, oututImgPath);
+	}
+	
+	if (num == 2) {
+		//pxInfo.txt記載内容の指定ピクセル値を変換
+		cv::Mat src = cv::imread(inputImgPath, cv::IMREAD_COLOR);
 
-	//ImgShow(inputImgPath, oututImgPath);
-	iroKukanCnv(inputImgPath, oututImgPath);
+		char buffer[100];
+		FILE* fp;
+		fp = fopen("pxInfo.txt", "r");
+		while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+			int H, S, V;
+			//printf("%s\n", buffer);
+			sscanf(buffer, "%d,%d,%d", &H, &S, &V);
+			src = iroKukanCnv(inputImgPath, oututImgPath, H, S, V, 10, src);
+			printf("%d:%d:%d\n", H, S, V);
 
-	cv::destroyAllWindows();
+		}
+		imshow("window", src);
+		fclose(fp);
+		cv::waitKey(0);
+		cv::destroyAllWindows();
+	}
+		
 
 	return 0;
 }
