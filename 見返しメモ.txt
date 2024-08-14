@@ -1,2 +1,7 @@
 メモ
 ・デスクトップの「Project2」
+
+とりあえず、気になったリンク
+・画像の一部のみ処理するＲＯＩの設定について【OpenCV2.x,3.x】
+https://qiita.com/wakaba130/items/91ddc8c9d1cbf9ea8eda
+
