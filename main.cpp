@@ -29,55 +29,71 @@
 
 #pragma comment(lib,"opencv_world300.lib")
 
+
 using namespace cv;
 using namespace std;
 
 Rect2i rectangle_value;
 
 
+
+
+
+void mouse_callback_getPixcelVal(int event, int x, int y, int flags, void* userdata);
+void mouse_callback(int event, int x, int y, int flags, void* userdata);
+
+
 /*
-å‚è€ƒãƒªãƒ³ã‚¯
+QlƒŠƒ“ƒN
 https://www.qoosky.dev/techs/e064b34c9c
 https://af-e.net/c-language-fgets-line-by-line/
 */
 
-//ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯é–¢æ•°
-void mouse_callback(int event, int x, int y, int flags, void* userdata)
-{
-	bool* isClick = static_cast<bool*>(userdata);
-	if (event == EVENT_LBUTTONDOWN) {
-		*isClick = true;
-		cout << "Draw rectangle\n"
-			<< " start position (x, y) : " << x << ", " << y << endl;
-		rectangle_value = Rect2i(x, y, 0, 0);
-	}
-	if (event == EVENT_LBUTTONUP) {
-		*isClick = false;
-		cout << " end   position (x, y) : " << x << ", " << y << endl;
-		rectangle_value.width = x - rectangle_value.x;
-		rectangle_value.height = y - rectangle_value.y;
-	}
-	if (event == EVENT_MOUSEMOVE) {
-		if (*isClick) {
-			rectangle_value.width = x - rectangle_value.x;
-			rectangle_value.height = y - rectangle_value.y;
-		}
-	}
-}
+/*
+20240825
+‰º‹LƒR[ƒh‚ğmouseCallBackFunc.cpp‚ÖˆÚ“®Bmain.cpp‚Öƒvƒƒgƒ^ƒCƒvéŒ¾‚ğ’Ç‹LB
+Evoid mouse_callback(int event, int x, int y, int flags, void* userdata)
+Evoid mouse_callback_getPixcelVal(int event, int x, int y, int flags, void* userdata)
+E
 
-//å·¦ã‚¯ãƒªãƒƒã‚¯ã—ãŸéš›ã®ãƒ”ã‚¯ã‚»ãƒ«ä½ç½®æƒ…å ±å–å¾—
-void mouse_callback_getPixcelVal(int event, int x, int y, int flags, void* userdata)
-{
-	//bool* isClick = static_cast<bool*>(userdata);
-	if (event == EVENT_LBUTTONDOWN) {
-		//*isClick = true;
-		cout << "Draw rectangle\n"
-			<< " start position (x, y) : " << x << ", " << y << endl;
-		rectangle_value = Rect2i(x, y, 0, 0);
-		rectangle_value.width = x;
-		rectangle_value.height = y;
-	}
-}
+*/
+//ƒR[ƒ‹ƒoƒbƒNŠÖ”
+//void mouse_callback(int event, int x, int y, int flags, void* userdata)
+//{
+//	bool* isClick = static_cast<bool*>(userdata);
+//	if (event == EVENT_LBUTTONDOWN) {
+//		*isClick = true;
+//		cout << "Draw rectangle\n"
+//			<< " start position (x, y) : " << x << ", " << y << endl;
+//		rectangle_value = Rect2i(x, y, 0, 0);
+//	}
+//	if (event == EVENT_LBUTTONUP) {
+//		*isClick = false;
+//		cout << " end   position (x, y) : " << x << ", " << y << endl;
+//		rectangle_value.width = x - rectangle_value.x;
+//		rectangle_value.height = y - rectangle_value.y;
+//	}
+//	if (event == EVENT_MOUSEMOVE) {
+//		if (*isClick) {
+//			rectangle_value.width = x - rectangle_value.x;
+//			rectangle_value.height = y - rectangle_value.y;
+//		}
+//	}
+//}
+
+////¶ƒNƒŠƒbƒN‚µ‚½Û‚ÌƒsƒNƒZƒ‹ˆÊ’uî•ñæ“¾
+//void mouse_callback_getPixcelVal(int event, int x, int y, int flags, void* userdata)
+//{
+//	//bool* isClick = static_cast<bool*>(userdata);
+//	if (event == EVENT_LBUTTONDOWN) {
+//		//*isClick = true;
+//		cout << "Draw rectangle\n"
+//			<< " start position (x, y) : " << x << ", " << y << endl;
+//		rectangle_value = Rect2i(x, y, 0, 0);
+//		rectangle_value.width = x;
+//		rectangle_value.height = y;
+//	}
+//}
 
 
 //TEMP
@@ -85,7 +101,7 @@ void ImgShowBK(string inputImgPath, string outputImgPath) {
 
 	Mat src;
 
-	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ¼ãƒ 
+	//ƒEƒBƒ“ƒhƒEƒl[ƒ€
 	string src_window = "ImgIn";
 	string roi_window = "ImgOut";
 
@@ -105,7 +121,7 @@ void sample(string inputImgPath, string outputImgPath) {
 	waitKey(0);
 }
 
-//ç”»åƒä¸Šã®ãƒã‚¦ã‚¹ã‚¯ãƒªãƒƒã‚¯ã—ãŸHSVè‰²ç©ºé–“ã®å€¤ã‚’CMDã«å‡ºåŠ›ã™ã‚‹ã€‚
+//‰æ‘œã‚Ìƒ}ƒEƒXƒNƒŠƒbƒN‚µ‚½HSVF‹óŠÔ‚Ì’l‚ğCMD‚Éo—Í‚·‚éB
 void ImgShow(string inputImgPath, string outputImgPath) {
 	bool isClick = false;
 	int key = 0;
@@ -113,13 +129,13 @@ void ImgShow(string inputImgPath, string outputImgPath) {
 	Mat src,srcRGB;
 	Mat3b draw_img = src;
 
-	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ¼ãƒ 
+	//ƒEƒBƒ“ƒhƒEƒl[ƒ€
 	string src_window = "ImgIn";
 	string roi_window = "ImgOut";
 
 	src = imread(inputImgPath);
 	srcRGB = src.clone();
-	cv::cvtColor(src, src, cv::COLOR_BGR2HSV);//è‰²ç©ºé–“å¤‰æ›´
+	cv::cvtColor(src, src, cv::COLOR_BGR2HSV);//F‹óŠÔ•ÏX
 	draw_img = src;
 
 	namedWindow(src_window,1);
@@ -132,7 +148,7 @@ void ImgShow(string inputImgPath, string outputImgPath) {
 	for (;;) {
 		key = 0;
 
-		// å·¦ãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚ŒãŸã‚‰æç”»é–‹å§‹
+		// ¶ƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚½‚ç•`‰æŠJn
 		if (isClick == true) {
 			rectangle(srcRGB, rectangle_value, Scalar(255, 0, 0), 1, CV_AA);
 			mouseOnFlg = true;
@@ -145,15 +161,15 @@ void ImgShow(string inputImgPath, string outputImgPath) {
 		int pointY = rectangle_value.height;
 		//cv::Mat3b draw_img = src;
 
-		// å€¤ã®å–å¾—
-		// (0,0)ãŒèµ¤ã ã£ãŸå ´åˆã€BGRã®é †ã«"0,0,255"ã¨å‡ºåŠ›ã•ã‚Œã‚‹ã€‚
+		// ’l‚Ìæ“¾
+		// (0,0)‚ªÔ‚¾‚Á‚½ê‡ABGR‚Ì‡‚É"0,0,255"‚Æo—Í‚³‚ê‚éB
 		cv::Vec3b hsv = draw_img(cv::Point(pointX, pointY));
 		printf("%d,%d,%d\n", hsv[0], hsv[1], hsv[2]);
 		H = hsv[0];
 		S = hsv[1];
 		V = hsv[2];
 
-		// cæŠ¼ä¸‹ã§HSVç™»éŒ²ã€XæŠ¼ä¸‹ã§çµ‚äº†ã€‚
+		// c‰Ÿ‰º‚ÅHSV“o˜^AX‰Ÿ‰º‚ÅI—¹B
 		key = waitKey(1);
 		if (key == 'c') {
 			FILE* fp = NULL;
@@ -167,26 +183,25 @@ void ImgShow(string inputImgPath, string outputImgPath) {
 	}
 }
 
-//ç”»åƒã‹ã‚‰ç‰¹å®šã®è‰²é ˜åŸŸãƒã‚¹ã‚¯ä½œæˆã€ãƒã‚¹ã‚¯éƒ¨åˆ†ã‚’HSVè‰²ç©ºé–“å¤‰æ›´
-
+//‰æ‘œ‚©‚ç“Á’è‚ÌF—Ìˆæƒ}ƒXƒNì¬Aƒ}ƒXƒN•”•ª‚ğHSVF‹óŠÔ•ÏX
 cv::Mat iroKukanCnv(string inputImgPath, string outputImgPath,int H,int S,int V,int hiLowRng, cv::Mat src) {
 	
 	//cv::Mat src = cv::imread(inputImgPath, cv::IMREAD_COLOR);
 	cv::Mat hsv;
-	cv::cvtColor(src, hsv, cv::COLOR_BGR2HSV);// è‰²ç©ºé–“å¤‰æ›´
+	cv::cvtColor(src, hsv, cv::COLOR_BGR2HSV);// F‹óŠÔ•ÏX
 
-	// inRange ã«ã‚ˆã£ã¦ Hue ãŒç‰¹å®šã®ç¯„å›²ã«ã‚ã‚‹é ˜åŸŸã® mask ã‚’å–å¾—ã—ã¾ã™ã€‚
+	// inRange ‚É‚æ‚Á‚Ä Hue ‚ª“Á’è‚Ì”ÍˆÍ‚É‚ ‚é—Ìˆæ‚Ì mask ‚ğæ“¾‚µ‚Ü‚·B
 	cv::Mat mask;
 	//163,39,251
-	//178,213,180 (èµ¤ï¼‰
-	//139,185,207 (ã‚€ã‚‰ã•ãè‰²)
+	//178,213,180 (Ôj
+	//139,185,207 (‚Ş‚ç‚³‚«F)
 	//H = 178, S = 213, V = 180;
 	//H = 139, S = 185, V = 207;
 	hiLowRng = 10;
 	cv::inRange(hsv, cv::Scalar(H - hiLowRng, S - hiLowRng, V - hiLowRng),
 		cv::Scalar(H + hiLowRng, S + hiLowRng, V + hiLowRng), mask);
 
-	// src ã¨ src ã® and æ¼”ç®—ã‚’ã€mask ã®é ˜åŸŸ (0 ä»¥å¤–ã®é ˜åŸŸ) ã«ã¤ã„ã¦ã®ã¿è¡Œã„ç”»åƒã‚’åˆ‡ã‚Šå‡ºã—ã€‚
+	// src ‚Æ src ‚Ì and ‰‰Z‚ğAmask ‚Ì—Ìˆæ (0 ˆÈŠO‚Ì—Ìˆæ) ‚É‚Â‚¢‚Ä‚Ì‚İs‚¢‰æ‘œ‚ğØ‚èo‚µB
 	double min, max;
 	cv::minMaxLoc(mask, &min, &max);
 
@@ -197,17 +212,17 @@ cv::Mat iroKukanCnv(string inputImgPath, string outputImgPath,int H,int S,int V,
 	//cv::imshow("mask", mask);
 	//cv::imshow("res", dst);
 
-	//dstã®è‰²æƒ…å ±å¤‰æ›
+	//dst‚ÌFî•ñ•ÏŠ·
 	for (int imgRow = 0; imgRow < dst.rows; imgRow++) {
 		for (int imgCol = 0; imgCol < dst.cols; imgCol++) {
 			cv::Vec3b& dstPixel = dst.at<cv::Vec3b>(imgRow, imgCol);//dst
 			cv::Vec3b& hsvPixel = src.at<cv::Vec3b>(imgRow, imgCol);//src
 
-			//é»’ä»¥å¤–ã®æ˜åº¦ã®å ´åˆã€HSVä»»æ„ã®å€¤ã«å¤‰æ›´
+			//•ˆÈŠO‚Ì–¾“x‚Ìê‡AHSV”CˆÓ‚Ì’l‚É•ÏX
 			if (dstPixel[2] != 0) {
-				hsvPixel[0] = 135;
-				hsvPixel[1] = 90;
-				hsvPixel[2] = 88;
+				hsvPixel[0] = H+20;
+				hsvPixel[1] = S+20;
+				hsvPixel[2] = V+20;
 			}
 		}
 	}
@@ -217,53 +232,124 @@ cv::Mat iroKukanCnv(string inputImgPath, string outputImgPath,int H,int S,int V,
 	return src;
 }
 
-int txtGyoCnt() {
-	FILE* fp;
-	int data[100];
-	int c,i = 0;
-	int line = 0;
-	if ((fp = fopen("pxInfo.txt", "r")) == NULL) {
-		return -1;
-	}
-	while ((c = fgetc(fp)) != EOF) {
-		if (c == '\n') line++;
-	}
-	fclose(fp);
-	return line;
+
+//‰æ‘œ‚©‚ç—Ìˆæ‚ğ’Šo
+cv::Mat extrImg(cv::Mat src_img) {
+	
+	// 2’l‰»
+	cv::Mat gray_img, bin_img;
+	cv::cvtColor(src_img, gray_img, CV_BGR2GRAY);
+	cv::threshold(gray_img, bin_img, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
+
+	/// —ÖŠs‚ÌŒŸo
+	std::vector<std::vector<cv::Point> > contours;
+	std::vector<cv::Vec4i> hierarchy;
+
+	//—ÖŠs‚Ì•`Ê
+	cv::findContours(bin_img, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+	cv::drawContours(src_img, contours, 0, cv::Scalar(0, 0, 200), 3, CV_AA, hierarchy, 2);
+	cv::imshow("Contours1", src_img);
+	cv::waitKey(0);
+
+	return src_img;
 }
 
-int main() {
 
-	//ç”»åƒæ ¼ç´å…ˆ
+// ƒvƒƒgƒ^ƒCƒvéŒ¾
+void mouseCallbackPoligon(int event, int x, int y, int, void*);
+std::vector<cv::Point> points;  // ƒAƒ“ƒJ[ƒ|ƒCƒ“ƒg‚ğ•Û‚·‚éƒxƒNƒ^[
+cv::Mat img, img_copy, src, src_copy;
+
+//int main()
+//{
+//	// ‰æ‘œ‚ğ“Ç‚İ‚İ‚Ü‚·
+//	img = cv::imread("test.PNG");
+//	if (img.empty()) {
+//		std::cerr << "‰æ‘œ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ" << std::endl;
+//		return -1;
+//	}
+//
+//	img.copyTo(img_copy);  // ‰Šúó‘Ô‚ğ•Û‘¶
+//
+//	cv::namedWindow("Image", cv::WINDOW_AUTOSIZE);
+//	cv::setMouseCallback("Image", mouseCallbackPoligon);
+//	cv::imshow("Image", img);
+//	cv::waitKey(0);
+//
+//	if (points.size() >= 3) {
+//		cv::Mat mask = cv::Mat::zeros(img.size(), CV_8UC1);
+//		std::vector<std::vector<cv::Point>> pts{ points };
+//		cv::fillPoly(mask, pts, cv::Scalar(255));
+//
+//		cv::Mat result;
+//		img.copyTo(result, mask);
+//
+//		cv::imshow("Result", result);
+//		cv::imwrite("Result.PNG", result);
+//
+//		cv::waitKey(0);
+//	}
+//
+//	return 0;
+//}
+
+//cv::Mat src, src_copy, result;
+
+int main() { //main_HSVkakunin
+
+	//‰æ‘œŠi”[æ
 	//string Strarg = "XXXX";
 
-	//ç”»åƒå
+	//‰æ‘œ–¼
 	//string inputImg = "red.PNG";
 	string inputImg = "test.PNG";
 	//string inputImg = "defg.PNG";
 	//string outputImg = "\sampleOutput1.PNG";
 
 
-	//ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹
+	//ƒtƒ@ƒCƒ‹ƒpƒX
 	string inputImgPath = "";
     string oututImgPath = "";
 
 	//inputImgPath.append(Strarg);
 	inputImgPath.append(inputImg);
 	int num = 0;
+	//mkTxt();
 
-	printf("ãƒ¢ãƒ¼ãƒ‰å…¥åŠ›ã€€1ï¼šç”»åƒä¸Šã®ã‚¯ãƒªãƒƒã‚¯ã—ãŸæ‰€ã®ãƒ”ã‚¯ã‚»ãƒ«å€¤ã‚’pxInfo.txtã«å‡ºåŠ›ã€€2ï¼špxInfo.txtã®æƒ…å ±ã‚’ã‚‚ã¨ã«ãƒ”ã‚¯ã‚»ãƒ«å€¤ã‚’å¤‰æ›\n");
-	scanf("%d", &num);
-	
+	//printf("ƒ‚[ƒh“ü—Í@1F‰æ‘œãƒNƒŠƒbƒNŒãAƒL[‚Ìucv‰Ÿ‰º‚ÅƒsƒNƒZƒ‹’l‚ğpxInfo.txt‚Éo—Í@2FpxInfo.txt‚Ìî•ñ‚ğ‚à‚Æ‚ÉƒsƒNƒZƒ‹’l‚ğ•ÏŠ·\nƒL[‚Ìuxv‰Ÿ‰º‚ÅI—¹‚µ‚Ü‚·B");
+	//scanf("%d", &num);
+	num = 2;
 	if (num == 1) {
-		//ç”»åƒä¸Šã®ã‚¯ãƒªãƒƒã‚¯ã—ãŸæ‰€ã®ãƒ”ã‚¯ã‚»ãƒ«å€¤ã‚’TXTã«å‡ºåŠ›ã€‚
+		//‰æ‘œã‚ÌƒNƒŠƒbƒN‚µ‚½Š‚ÌƒsƒNƒZƒ‹’l‚ğTXT‚Éo—ÍB
 		ImgShow(inputImgPath, oututImgPath);
 	}
 	
 	if (num == 2) {
-		//pxInfo.txtè¨˜è¼‰å†…å®¹ã®æŒ‡å®šãƒ”ã‚¯ã‚»ãƒ«å€¤ã‚’å¤‰æ›
-		cv::Mat src = cv::imread(inputImgPath, cv::IMREAD_COLOR);
+		//pxInfo.txt‹LÚ“à—e‚Ìw’èƒsƒNƒZƒ‹’l‚ğ•ÏŠ·
+		//cv::Mat src, src_copy, result;
+		cv::Mat result;
+		src= cv::imread(inputImgPath, cv::IMREAD_COLOR);
+		printf("ˆ—‚ÌŠm”F\n");
+		//w’è”ÍˆÍ‰æ‘œ‚Ìƒ}ƒXƒN‰æ‘œo—Íˆ—‚Ì‚½‚ß’Ç‹LB
+		src.copyTo(src_copy);  // ‰Šúó‘Ô‚ğ•Û‘¶ 
+		cv::namedWindow("Image", cv::WINDOW_AUTOSIZE);
+		cv::setMouseCallback("Image", mouseCallbackPoligon);
+		cv::imshow("Image", src);
+		cv::waitKey(0);
+		printf("ˆ—‚ÌŠm”F\n");
+		if (points.size() >= 3) {
+			cv::Mat mask = cv::Mat::zeros(src.size(), CV_8UC1);
+			std::vector<std::vector<cv::Point>> pts{ points };
+			cv::fillPoly(mask, pts, cv::Scalar(255));
 
+			src.copyTo(result, mask);
+			cv::imshow("Result", result);
+			cv::imwrite("Result.PNG", result);
+			cv::waitKey(0);
+		}
+
+
+		//F•ÏXˆ—
 		char buffer[100];
 		FILE* fp;
 		fp = fopen("pxInfo.txt", "r");
@@ -271,11 +357,13 @@ int main() {
 			int H, S, V;
 			//printf("%s\n", buffer);
 			sscanf(buffer, "%d,%d,%d", &H, &S, &V);
-			src = iroKukanCnv(inputImgPath, oututImgPath, H, S, V, 10, src);
+			//src = iroKukanCnv(inputImgPath, oututImgPath, H, S, V, 10, src);
+			src = iroKukanCnv(inputImgPath, oututImgPath, H, S, V, 10, result);
 			printf("%d:%d:%d\n", H, S, V);
-
 		}
+
 		imshow("window", src);
+		cv::imwrite("Result_CUT.PNG", src);
 		fclose(fp);
 		cv::waitKey(0);
 		cv::destroyAllWindows();
